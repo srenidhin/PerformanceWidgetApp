@@ -5,7 +5,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Microsoft.Windows.Widgets.Providers;
-
+using System.Diagnostics;
+using System.Text.Json;
+using System.Management;
 
 namespace PerformanceWidgetApp
 {
@@ -29,17 +31,17 @@ namespace PerformanceWidgetApp
                 ""body"": [
                     {
                         ""type"": ""TextBlock"",
-                        ""text"": ""CPU Usage : ${CPUP} @ ${CPUT}"",
+                        ""text"": ""CPU Usage : ${CPUP} %"",
                         ""wrap"": true
                     },
                     {
                         ""type"": ""TextBlock"",
-                        ""text"": ""GPU Usage : ${GPUP} @ ${GPUT}"",
+                        ""text"": ""GPU Usage : ${GPUP} %"",
                         ""wrap"": true
                     },
                     {
                         ""type"": ""TextBlock"",
-                        ""text"": ""Ram : ${RamP}"",
+                        ""text"": ""Ram : ${RamP} GB"",
                         ""wrap"": true
                     }
                 ]
@@ -63,8 +65,8 @@ namespace PerformanceWidgetApp
                     WidgetInfo widget = new WidgetInfo() { widgetId = widgetId, widgetName = widgetName};
                     try
                     {
-                        int c = Convert.ToInt32(customState);
-                        widget.customState = c;
+                        //int c = Convert.ToInt32(customState);
+                        //widget.customState = c;
                     }
                     catch (Exception ex) { 
                         Console.WriteLine("Failed to recover custom state : " + ex.ToString());
@@ -130,16 +132,49 @@ namespace PerformanceWidgetApp
             string templateJSON = null;
             string dataJSON = null;
 
-            if(widgetInfo.widgetName == "PerformanceMonitor")
+            if(widgetInfo.widgetName == "Performance_Widget_App")
             {
                 templateJSON = PMWidgetTemplate;
-                dataJSON = "{}";
+
+                PerformanceCounter cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+                PerformanceCounter ramCounter = new PerformanceCounter("Memory", "Available MBytes");
+                
+                PMClass pM = new PMClass();
+
+                pM.cpup = Math.Round(cpuCounter.NextValue(),2);
+                System.Threading.Thread.Sleep(1000);
+                pM.cpup = Math.Round(cpuCounter.NextValue(),2);
+                pM.ramp = Math.Round(ramCounter.NextValue(),2);
+                pM.gpup = Math.Round(GetGPUUsage(),2);
+
+                dataJSON = JsonSerializer.Serialize(pM);
+                
             }
 
             widgetUpdateRequestOptions.Template = templateJSON;
             widgetUpdateRequestOptions.Data = dataJSON;
             widgetUpdateRequestOptions.CustomState = widgetInfo.customState.ToString();
             WidgetManager.GetDefault().UpdateWidget(widgetUpdateRequestOptions);
+        }
+
+        public static float GetGPUUsage()
+        {
+            var category = new PerformanceCounterCategory("GPU Engine");
+            var counterNames = category.GetInstanceNames();
+
+            var gpuCounters = counterNames
+                                .Where(counterName => counterName.EndsWith("engtype_3D"))
+                                .SelectMany(counterName => category.GetCounters(counterName))
+                                .Where(counter => counter.CounterName.Equals("Utilization Percentage"))
+                                .ToList();
+
+            gpuCounters.ForEach(x => x.NextValue());
+
+            Thread.Sleep(1000);
+
+            var result = gpuCounters.Sum(x => x.NextValue());
+
+            return result;
         }
 
         public static ManualResetEvent GetEmptyWidgetListEvent()

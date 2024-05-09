@@ -44,8 +44,8 @@
       <Extensions>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:ExeServer Executable="CsConsoleWidgetProvider.exe" Arguments="-RegisterProcessAsComServer" DisplayName="C# Provider App">
-              <com:Class Id="FEDAAF47-7AAE-400E-BBBC-C9EE5D32F050" DisplayName="CsConsoleWidgetProvider" />
+            <com:ExeServer Executable="PerformanceWidgetApp.exe" Arguments="-RegisterProcessAsComServer" DisplayName="C# Provider App">
+              <com:Class Id="FEDAAF47-7AAE-400E-BBBC-C9EE5D32F050" DisplayName="PerformanceWidgetApp" />
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>

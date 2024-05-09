@@ -1,56 +1,22 @@
 {
-  "type":"AdaptiveCard",
+  "type": "AdaptiveCard",
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "version": "1.6",
   "body": [
     {
       "type": "TextBlock",
-      "text": "CPU",
-      "Usage": "$",
-      { "CPUP" },
-      "@" "$",
-      { "CPUT" },
-      "",
-      ""
-      "wrap\"\"": null,
-      : true
+      "text": "CPU Usage : ${CPUP} %",
+      "wrap": true
     },
     {
-      ""
-      "type\"\"": null,
-      : ""
-      "TextBlock\"\"",
-      ,
-      ""
-      "text\"\"": null,
-      : ""
-      "GPU",
-      : null,
-      "Usage": "$",
-      { "GPUP" },
-      "@" "$",
-      { "GPUT" },
-      "",
-      ""
-      "wrap\"\"": null,
-      : true
+      "type": "TextBlock",
+      "text": "GPU Usage : ${GPUP} %",
+      "wrap": true
     },
     {
-      ""
-      "type\"\"": null,
-      : ""
-      "TextBlock\"\"",
-      ,
-      ""
-      "text\"\"": null,
-      : ""
-      "Ram",
-      : "$",
-      { "RamP" },
-      "",
-      ""
-      "wrap\"\"": null,
-      : true
+      "type": "TextBlock",
+      "text": "Ram Usage : ${RamP} GB",
+      "wrap": true
     }
   ]
 }
