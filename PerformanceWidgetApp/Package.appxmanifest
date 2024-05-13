@@ -88,6 +88,32 @@
                       <LightMode />
                     </ThemeResources>
                   </Definition>
+                  <Definition Id="Notes_Widget_App"
+										DisplayName="Notes"
+										Description="Taking notes locally">
+                    <Capabilities>
+                      <Capability>
+                        <Size Name="medium" />
+                      </Capability>
+                      <!--<Capability>
+                        <Size Name="medium" />
+                      </Capability>
+                      <Capability>
+                        <Size Name="large" />
+                      </Capability>-->
+                    </Capabilities>
+                    <ThemeResources>
+                      <Icons>
+                        <Icon Path="ProviderAssets\Counting_Icon.png" />
+                      </Icons>
+                      <Screenshots>
+                        <Screenshot Path="ProviderAssets\Counting_Screenshot.png" DisplayAltText="For accessibility" />
+                      </Screenshots>
+                      <!-- DarkMode and LightMode are optional -->
+                      <DarkMode />
+                      <LightMode />
+                    </ThemeResources>
+                  </Definition>
                   
                 </Definitions>
               </WidgetProvider>

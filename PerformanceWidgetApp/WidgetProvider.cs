@@ -24,32 +24,15 @@ namespace PerformanceWidgetApp
     [Guid("FEDAAF47-7AAE-400E-BBBC-C9EE5D32F050")]
     internal class WidgetProvider : IWidgetProvider
     {
-        const string PMWidgetTemplate = @"{
-                ""type"": ""AdaptiveCard"",
-                ""$schema"": ""http://adaptivecards.io/schemas/adaptive-card.json"",
-                ""version"": ""1.6"",
-                ""body"": [
-                    {
-                        ""type"": ""TextBlock"",
-                        ""text"": ""CPU Usage : ${CPUP} %"",
-                        ""wrap"": true
-                    },
-                    {
-                        ""type"": ""TextBlock"",
-                        ""text"": ""GPU Usage : ${GPUP} %"",
-                        ""wrap"": true
-                    },
-                    {
-                        ""type"": ""TextBlock"",
-                        ""text"": ""Ram : ${RamP} GB"",
-                        ""wrap"": true
-                    }
-                ]
-            }";
-
         static ManualResetEvent emptyWidgetListEvent = new ManualResetEvent(false);
 
-        public static Dictionary<string, WidgetInfo> activeWidgets = new Dictionary<string, WidgetInfo>();
+        public static Dictionary<string, WidgetImplBase> activeWidgets = new Dictionary<string, WidgetImplBase>();
+
+        private static readonly Dictionary<string, WidgetCreateDelegate> WidgetImpls = new()
+        {
+            [PerformanceMonitor.DefinitionId] = (widgetId, initialState) => new PerformanceMonitor(widgetId, initialState),
+            [Notes.DefinitionId] = (widgetId, initialState) => new Notes(widgetId, initialState)
+        };
 
         public WidgetProvider() {
             
@@ -61,17 +44,11 @@ namespace PerformanceWidgetApp
                 var widgetName = widgetContext.DefinitionId;
                 var customState = widgetInfo.CustomState;
 
-                if (!activeWidgets.ContainsKey(widgetId)) { 
-                    WidgetInfo widget = new WidgetInfo() { widgetId = widgetId, widgetName = widgetName};
-                    try
-                    {
-                        //int c = Convert.ToInt32(customState);
-                        //widget.customState = c;
-                    }
-                    catch (Exception ex) { 
-                        Console.WriteLine("Failed to recover custom state : " + ex.ToString());
-                    }
-                    activeWidgets[widgetId] = widget;
+                if (!activeWidgets.ContainsKey(widgetId)) {
+                    if (WidgetImpls.ContainsKey(widgetName))
+                        activeWidgets[widgetId] = WidgetImpls[widgetName](widgetId, customState);
+                    else
+                        WidgetManager.GetDefault().DeleteWidget(widgetId);
                 }
 
             }
@@ -81,9 +58,8 @@ namespace PerformanceWidgetApp
         {
             var widgetId = widgetContext.Id;
             var widgetName = widgetContext.DefinitionId;
-            WidgetInfo widgetInfo = new WidgetInfo() { widgetId = widgetId, widgetName = widgetName };
-            activeWidgets.Add(widgetId, widgetInfo);
-            UpdateWidget(widgetInfo);
+            var widget = WidgetImpls[widgetName](widgetId, "");
+            activeWidgets.Add(widgetId, widget);
         }
 
         public void DeleteWidget(string widgetId, string customState)
@@ -98,83 +74,22 @@ namespace PerformanceWidgetApp
 
         public void OnActionInvoked(WidgetActionInvokedArgs widgetActionInvokedArgs)
         {
-
+            activeWidgets[widgetActionInvokedArgs.WidgetContext.Id].OnActionInvoked(widgetActionInvokedArgs);
         }
 
         public void OnWidgetContextChanged(WidgetContextChangedArgs widgetContextChangedArgs)
         {
-
+           activeWidgets[widgetContextChangedArgs.WidgetContext.Id].OnWidgetContextChanged(widgetContextChangedArgs);
         }
 
         public void Activate(WidgetContext widgetContext)
         {
-            var widgetId = widgetContext.Id;
-            if (activeWidgets.ContainsKey(widgetId))
-            {
-                var widgetInfo = activeWidgets[widgetId];
-                widgetInfo.isActive = true;
-                UpdateWidget(widgetInfo);
-            }
+            activeWidgets[widgetContext.Id].Activate(widgetContext);
         }
 
         public void Deactivate(string widgetId)
         {
-            if (activeWidgets.ContainsKey(widgetId))
-            {
-                activeWidgets[widgetId].isActive = false;
-            }
-        }
-
-        public void UpdateWidget(WidgetInfo widgetInfo)
-        {
-            WidgetUpdateRequestOptions widgetUpdateRequestOptions = new WidgetUpdateRequestOptions(widgetInfo.widgetId);
-
-            string templateJSON = null;
-            string dataJSON = null;
-
-            if(widgetInfo.widgetName == "Performance_Widget_App")
-            {
-                templateJSON = PMWidgetTemplate;
-
-                PerformanceCounter cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-                PerformanceCounter ramCounter = new PerformanceCounter("Memory", "Available MBytes");
-                
-                PMClass pM = new PMClass();
-
-                pM.cpup = Math.Round(cpuCounter.NextValue(),2);
-                System.Threading.Thread.Sleep(1000);
-                pM.cpup = Math.Round(cpuCounter.NextValue(),2);
-                pM.ramp = Math.Round(ramCounter.NextValue(),2);
-                pM.gpup = Math.Round(GetGPUUsage(),2);
-
-                dataJSON = JsonSerializer.Serialize(pM);
-                
-            }
-
-            widgetUpdateRequestOptions.Template = templateJSON;
-            widgetUpdateRequestOptions.Data = dataJSON;
-            widgetUpdateRequestOptions.CustomState = widgetInfo.customState.ToString();
-            WidgetManager.GetDefault().UpdateWidget(widgetUpdateRequestOptions);
-        }
-
-        public static float GetGPUUsage()
-        {
-            var category = new PerformanceCounterCategory("GPU Engine");
-            var counterNames = category.GetInstanceNames();
-
-            var gpuCounters = counterNames
-                                .Where(counterName => counterName.EndsWith("engtype_3D"))
-                                .SelectMany(counterName => category.GetCounters(counterName))
-                                .Where(counter => counter.CounterName.Equals("Utilization Percentage"))
-                                .ToList();
-
-            gpuCounters.ForEach(x => x.NextValue());
-
-            Thread.Sleep(1000);
-
-            var result = gpuCounters.Sum(x => x.NextValue());
-
-            return result;
+            activeWidgets[widgetId].Deactivate();
         }
 
         public static ManualResetEvent GetEmptyWidgetListEvent()
