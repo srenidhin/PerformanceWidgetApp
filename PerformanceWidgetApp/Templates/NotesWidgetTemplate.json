@@ -8,17 +8,11 @@
       "items": [
         {
           "type": "Input.Text",
-          "placeholder": "Placeholder text",
+          "id": "TextArea",
           "isMultiline": true,
-          "spacing": "None",
-          "height": "stretch"
-        }
-      ],
-      "height": "stretch"
-    },
-    {
-      "type": "Container",
-      "items": [
+          "height": "stretch",
+          "value": "${data}"
+        },
         {
           "type": "ColumnSet",
           "columns": [
@@ -28,7 +22,7 @@
             },
             {
               "type": "Column",
-              "width": 12,
+              "width": 13,
               "items": [
                 {
                   "type": "ActionSet",
@@ -37,7 +31,7 @@
                       "type": "Action.Submit",
                       "title": "Save",
                       "style": "positive",
-                      "associatedInputs": "none"
+                      "associatedInputs": "auto"
                     }
                   ],
                   "horizontalAlignment": "Right",
@@ -53,7 +47,8 @@
           ],
           "horizontalAlignment": "Center"
         }
-      ]
+      ],
+      "height": "stretch"
     }
   ]
 }
