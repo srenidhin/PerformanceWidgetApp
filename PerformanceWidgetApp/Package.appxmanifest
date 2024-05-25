@@ -54,7 +54,7 @@
             <uap3:Properties>
               <WidgetProvider>
                 <ProviderIcons>
-                  <Icon Path="Assets\StoreLogo.png" />
+                  <Icon Path="Assets\icons8-n-50.png" />
                 </ProviderIcons>
                 <Activation>
                   <!-- Apps exports COM interface which implements IWidgetProvider -->
@@ -78,14 +78,13 @@
                     </Capabilities>
                     <ThemeResources>
                       <Icons>
-                        <Icon Path="ProviderAssets\Counting_Icon.png" />
+                        <Icon Path="ProviderAssets\icons8-acceleration-64.png" />
                       </Icons>
                       <Screenshots>
-                        <Screenshot Path="ProviderAssets\Counting_Screenshot.png" DisplayAltText="For accessibility" />
+                        <Screenshot Path="ProviderAssets\PerformanceMonitor.png" DisplayAltText="For accessibility" />
                       </Screenshots>
                       <!-- DarkMode and LightMode are optional -->
                       <DarkMode />
-                      <LightMode />
                     </ThemeResources>
                   </Definition>
                   <Definition Id="Notes_Widget_App"
@@ -104,10 +103,10 @@
                     </Capabilities>
                     <ThemeResources>
                       <Icons>
-                        <Icon Path="ProviderAssets\Counting_Icon.png" />
+                        <Icon Path="ProviderAssets\icons8-notes-80.png" />
                       </Icons>
                       <Screenshots>
-                        <Screenshot Path="ProviderAssets\Counting_Screenshot.png" DisplayAltText="For accessibility" />
+                        <Screenshot Path="ProviderAssets\NotesWidget.png" DisplayAltText="For accessibility" />
                       </Screenshots>
                       <!-- DarkMode and LightMode are optional -->
                       <DarkMode />
