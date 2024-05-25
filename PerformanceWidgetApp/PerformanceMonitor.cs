@@ -35,6 +35,8 @@ namespace PerformanceWidgetApp
             widgetUpdateRequestOptions.CustomState = this.State;
 
             WidgetManager.GetDefault().UpdateWidget(widgetUpdateRequestOptions);
+
+            Activate(widgetContext);
         }
 
         public override string GetTemplateForWidget()
