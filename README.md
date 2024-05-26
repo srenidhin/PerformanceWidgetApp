@@ -8,6 +8,7 @@ Status : Completed
 2. Delegate functions to bind different constructors
 3. Virtual functions and overriding
 4. Package app manifest
+5. Threads
 
 # What is it?
 
