@@ -16,6 +16,8 @@ namespace PerformanceWidgetApp
 
         private static string WidgetTemplate { get; set; } = "";
 
+        private static bool isActive = false;
+
         private static string GetDefaultTemplate()
         {
             if (string.IsNullOrEmpty(WidgetTemplate))
@@ -26,7 +28,7 @@ namespace PerformanceWidgetApp
             return WidgetTemplate;
         }
 
-        public override void Activate(WidgetContext widgetContext)
+        private void UpdateWidget(WidgetContext widgetContext)
         {
             WidgetUpdateRequestOptions widgetUpdateRequestOptions = new WidgetUpdateRequestOptions(widgetContext.Id);
 
@@ -36,7 +38,23 @@ namespace PerformanceWidgetApp
 
             WidgetManager.GetDefault().UpdateWidget(widgetUpdateRequestOptions);
 
-            Activate(widgetContext);
+            if (isActive)
+            {
+                UpdateWidget(widgetContext);
+            }
+        }
+
+        public override void Activate(WidgetContext widgetContext)
+        {   
+            isActive = true;
+            Thread thread = new Thread(new ThreadStart(() => UpdateWidget(widgetContext)));
+            thread.Start();
+        }
+
+        public override void Deactivate()
+        {
+            isActive = false;
+            base.Deactivate();
         }
 
         public override string GetTemplateForWidget()
